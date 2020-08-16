@@ -272,10 +272,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE END TIM13_MspInit 0 */
     /* TIM13 clock enable */
     __HAL_RCC_TIM13_CLK_ENABLE();
-
+  
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**TIM13 GPIO Configuration
-    PA6     ------> TIM13_CH1
+    /**TIM13 GPIO Configuration    
+    PA6     ------> TIM13_CH1 
     */
     GPIO_InitStruct.Pin = FORD_PWM_IN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -313,8 +313,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
 
   /* USER CODE END TIM2_MspPostInit 0 */
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    /**TIM2 GPIO Configuration
-    PB10     ------> TIM2_CH3
+    /**TIM2 GPIO Configuration    
+    PB10     ------> TIM2_CH3 
     */
     GPIO_InitStruct.Pin = FAN_PWM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -332,10 +332,10 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)
   /* USER CODE BEGIN TIM14_MspPostInit 0 */
 
   /* USER CODE END TIM14_MspPostInit 0 */
-
+  
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    /**TIM14 GPIO Configuration
-    PA7     ------> TIM14_CH1
+    /**TIM14 GPIO Configuration    
+    PA7     ------> TIM14_CH1 
     */
     GPIO_InitStruct.Pin = BKLT_OUT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -418,9 +418,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE END TIM13_MspDeInit 0 */
     /* Peripheral clock disable */
     __HAL_RCC_TIM13_CLK_DISABLE();
-
-    /**TIM13 GPIO Configuration
-    PA6     ------> TIM13_CH1
+  
+    /**TIM13 GPIO Configuration    
+    PA6     ------> TIM13_CH1 
     */
     HAL_GPIO_DeInit(FORD_PWM_IN_GPIO_Port, FORD_PWM_IN_Pin);
 
@@ -448,7 +448,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 
   /* USER CODE END TIM14_MspDeInit 1 */
   }
-}
+} 
 
 /* USER CODE BEGIN 1 */
 
