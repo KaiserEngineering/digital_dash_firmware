@@ -29,9 +29,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include <lib_ke_protocol.h>
-#include <lib_obdii.h>
-#include <lib_digital_dash.h>
+#include "lib_digital_dash.h"
 
 /* USER CODE END Includes */
 
