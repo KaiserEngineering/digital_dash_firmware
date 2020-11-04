@@ -77,6 +77,8 @@
 #define PI_UART &huart1 /* Raspberry Pi communication channel */
 #define ECU_CAN &hcan1  /* Primary CAN bus communication (OEM connector) */
 
+#define FAN_PWM 0       /* PCB-DDMB-STRS REV A does not have PWM functionality */
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -345,14 +347,25 @@ static void Fan_Control( FAN_PWR_STATE state )
 {
     if( state == FAN_PWR_ENABLED )
     {
-        //HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
-    	//HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-    	htim2.Instance->CCR3 = htim2.Instance->ARR;
+        #if FAN_PWM
+        /* Increase the fan speed. TODO at switch case for fan speeds */
+        HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+        htim2.Instance->CCR3 = htim2.Instance->ARR;
+
+        #else
+        /* Enable power to the Fan */
+        HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
+        #endif
     }
     else
     {
+        #if FAN_PWM
+        /* Keep the fan on, but at the lowest speed */
     	htim2.Instance->CCR3 = (htim2.Instance->ARR) / 7;
-        //HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
+        #else
+    	/* Disable power to the Fan */
+        HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
+        #endif
     }
 }
 
@@ -566,7 +579,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start( &htim2, TIM_CHANNEL_3 );
-  HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
+  HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
 
   /* Prevent unwanted power-down */
   System_Power_Hold( SYS_PWR_HOLD_DISABLE );
