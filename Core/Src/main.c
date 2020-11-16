@@ -460,18 +460,6 @@ int32_t get_mcu_internal_temp( void )
 		return temperature;
 }
 
-/* Ford Focus ST/RS backlight PWM Rising edge (us). */
-static volatile uint32_t Ford_Backlight_IC_Rising  = 0;
-
-/* Ford Focus ST/RS backlight PWM falling edge (us). */
-static volatile uint32_t Ford_Backlight_IC_Falling  = 0;
-
-/* Ford Focus ST/RS backlight PWM positive width (us). */
-static volatile uint32_t Ford_Backlight_Period = 0;
-
-/* Ford Focus ST/RS backlight PWM duty cycle based on 165Hz. */
-static volatile uint32_t Ford_Backlight_Duty_Cycle = 100;
-
 void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 {
 	if( htim == &htim8)
@@ -480,56 +468,6 @@ void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
         BITCLEAR(system_flags, PI_PWR_EN);
 	}
-
-	else if ( htim == FORD_FOCUS_BACKLIGHT_TIMEOUT_TIM )
-	{
-	    __HAL_TIM_CLEAR_IT( htim, TIM_IT_UPDATE );
-	    if( HAL_GPIO_ReadPin( FORD_PWM_IN_GPIO_Port, FORD_PWM_IN_Pin ) == GPIO_PIN_SET )
-	        Ford_Backlight_Duty_Cycle = 100;
-	    else
-	        Ford_Backlight_Duty_Cycle = 0;
-	}
-}
-
-void HAL_TIM_IC_CaptureCallback( TIM_HandleTypeDef *htim )
-{
-    if( htim == FORD_FOCUS_BACKLIGHT_TIM )
-    {
-        if( htim->Channel == FORD_FOCUS_BACKLIGHT_TIM_ACTIVE_CHANNEL )
-        {
-            __HAL_TIM_SET_COUNTER( FORD_FOCUS_BACKLIGHT_TIMEOUT_TIM, 0 );
-
-            /* Check if a pulse is being measured */
-            if( Ford_Backlight_IC_Rising > 0 )
-            {
-                /* Capture when the falling edge occurred */
-                Ford_Backlight_IC_Falling = HAL_TIM_ReadCapturedValue( htim, FORD_FOCUS_BACKLIGHT_TIM_CHANNEL );
-
-                /* Calculate the positive width */
-                Ford_Backlight_Period = ( Ford_Backlight_IC_Falling - Ford_Backlight_IC_Rising );
-
-                /* Calculate the duty cycle based on a 165Hz frequency */
-                Ford_Backlight_Duty_Cycle = ( Ford_Backlight_Period * (uint32_t)100 ) / 6060;
-
-                /* Duty cycle should never be greater than 100% */
-                Ford_Backlight_Duty_Cycle = ( Ford_Backlight_Duty_Cycle > 100 ) ? 100 : Ford_Backlight_Duty_Cycle;
-
-                /* Clear the timer variables */
-                Ford_Backlight_IC_Rising = 0;
-                Ford_Backlight_IC_Falling = 0;
-                __HAL_TIM_SET_COUNTER( htim, 0 );
-
-                /* Look for the next rising edge */
-                __HAL_TIM_SET_CAPTUREPOLARITY( htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING );
-            } else {
-                /* Capture when the rising edge occurred */
-                Ford_Backlight_IC_Rising = HAL_TIM_ReadCapturedValue( htim, FORD_FOCUS_BACKLIGHT_TIM_CHANNEL );
-
-                /* Look for the next falling edge */
-                __HAL_TIM_SET_CAPTUREPOLARITY( htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_FALLING );
-            }
-        }
-    }
 }
 
 /* USER CODE END 0 */
@@ -615,13 +553,6 @@ int main(void)
 
   /* Configure the UART intetupt */
   HAL_UART_Receive_IT( PI_UART, &rx_byte, 1 );
-
-  /* Begin measuring the backlight signal from the Ford Focus ST/RS OEM connector */
-  HAL_TIM_IC_Start_IT( FORD_FOCUS_BACKLIGHT_TIM , FORD_FOCUS_BACKLIGHT_TIM_CHANNEL );
-
-  /* Begin monitoring the backlight signal for an idle state */
-  __HAL_TIM_CLEAR_IT( FORD_FOCUS_BACKLIGHT_TIMEOUT_TIM, TIM_IT_UPDATE );
-  HAL_TIM_Base_Start_IT( FORD_FOCUS_BACKLIGHT_TIMEOUT_TIM );
 
   /* USER CODE END 2 */
 
