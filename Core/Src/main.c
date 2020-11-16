@@ -232,7 +232,7 @@ void process_can_packet( CAN_HandleTypeDef *hcan, uint32_t fifo )
 {
     flash_led( DEBUG_LED_1 );
     CAN_RxHeaderTypeDef rx_header;
-    uint8_t rx_buf[OBDII_DLC];
+    uint8_t rx_buf[8];
     HAL_CAN_GetRxMessage( hcan, fifo, &rx_header, rx_buf );
 
     if( rx_header.IDE == CAN_ID_STD )
@@ -394,8 +394,8 @@ static uint8_t ECU_CAN_Tx( uint8_t data[], uint8_t len )
     uint32_t pTxMailbox = 0;
 
     /* Copy the buffer */
-    uint8_t tx_buf[OBDII_DLC];
-    memcpy(tx_buf, data, OBDII_DLC);
+    uint8_t tx_buf[8];
+    memcpy(tx_buf, data, 8);
 
     /* TODO check for free mailbox */
     if( HAL_CAN_AddTxMessage( ECU_CAN, &Header, tx_buf, &pTxMailbox ) == HAL_OK )
