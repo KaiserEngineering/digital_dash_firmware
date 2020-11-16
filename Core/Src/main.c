@@ -109,9 +109,6 @@ static uint8_t CAN_Filter_Count = 0;
 /* Flag to override auto LCD brightness */
 static uint8_t gpio_LCD_override = 0;
 
-#define LCD_TIMEOUT 500
-#define LCD_ON_TIME 500
-
 volatile uint32_t can_tx_mailbox_status = 0;
 volatile uint32_t can_rx_mailbox_status = 0;
 
