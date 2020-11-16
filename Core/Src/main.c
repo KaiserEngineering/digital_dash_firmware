@@ -112,11 +112,6 @@ static uint8_t gpio_LCD_override = 0;
 #define LCD_TIMEOUT 500
 #define LCD_ON_TIME 500
 
-/* Time since last message was received from raspberry pi */
-uint32_t rasp_pi_last_message = 0x0000FFFF;
-
-uint32_t rasp_pi_backlight = 0;
-
 volatile uint32_t can_tx_mailbox_status = 0;
 volatile uint32_t can_rx_mailbox_status = 0;
 
@@ -700,9 +695,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if( huart == PI_UART )
 	{
-		/* Reset the count */
-		rasp_pi_last_message = 0;
-
 		/* Pass the UART byte to the Digital Dash */
 		DigitalDash_Add_UART_byte( rx_byte );
 
@@ -719,12 +711,6 @@ uint32_t HAL_GetTick(void)
 void HAL_IncTick(void)
 {
 	Sys_Tick++;
-
-	if( rasp_pi_last_message < 0xFFFFFFFF )
-		rasp_pi_last_message++;
-
-	if( rasp_pi_backlight < 0xFFFFFFFF )
-		rasp_pi_backlight++;
 
     digitaldash_tick();
 
