@@ -337,28 +337,47 @@ static void Get_SD_Card_State( void )
 
 static void Fan_Control( FAN_PWR_STATE state )
 {
-    if( state == FAN_PWR_ENABLED )
-    {
         #if FAN_PWM
-        /* Increase the fan speed. TODO at switch case for fan speeds */
-        HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-        htim2.Instance->CCR3 = htim2.Instance->ARR;
+        switch( state )
+        {
+        case FAN_MAX:
+            /* Enable power to the Fan */
+            HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
+            htim2.Instance->CCR3 = htim2.Instance->ARR;
+            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+            break;
+        case FAN_MED:
+            /* Enable power to the Fan */
+            HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
+            htim2.Instance->CCR3 = (htim2.Instance->ARR) / 4;
+            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+            break;
+        case FAN_MIN:
+            /* Enable power to the Fan */
+            HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
+            htim2.Instance->CCR3 = (htim2.Instance->ARR) / 7;
+            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+            break;
+        case FAN_OFF:
+            /* Disable power to the Fan */
+            HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
+            HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+            break;
+        }
+        #else
+        if( state > FAN_OFF )
+        {
+            /* Enable power to the Fan */
+            HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
+            htim2.Instance->CCR3 = htim2.Instance->ARR;
+            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+        } else {
+            /* Disable power to the Fan */
+            HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
+            HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+        }
 
-        #else
-        /* Enable power to the Fan */
-        HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
         #endif
-    }
-    else
-    {
-        #if FAN_PWM
-        /* Keep the fan on, but at the lowest speed */
-    	htim2.Instance->CCR3 = (htim2.Instance->ARR) / 7;
-        #else
-    	/* Disable power to the Fan */
-        HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
-        #endif
-    }
 }
 
 static uint8_t Rasp_Pi_Tx( uint8_t *data, uint8_t len )
@@ -518,7 +537,7 @@ int main(void)
 
   if( get_mcu_internal_temp() > MCU_THERMAL_THRESH )
   {
-	  Fan_Control( FAN_PWR_ENABLED );
+	  Fan_Control( FAN_MAX );
 
 	  while( get_mcu_internal_temp() > MCU_THERMAL_THRESH ) { }
   }
