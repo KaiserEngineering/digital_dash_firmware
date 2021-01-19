@@ -58,11 +58,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, DEBUG_LED_1_Pin|DEBUG_LED_2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, CAN_STBY_Pin|USB_EN_Pin|LCD_DR_EN_Pin|LCD_DR_ENR_Pin
-                          |PI_SHUTDOWN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CAN_STBY_Pin|LCD_DR_EN_Pin|LCD_DR_ENR_Pin|PI_SHUTDOWN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, USB_EN_Pin|PI_PWR_EN_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : PCPin PCPin PCPin */
   GPIO_InitStruct.Pin = FAN_EN_Pin|PWR_HOLD_Pin|DEBUG_LED_3_Pin;

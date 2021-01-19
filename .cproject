@@ -147,9 +147,9 @@
 									<listOptionValue builtIn="false" value="FORD_FOCUS_STRS_2013_2018"/>
 									<listOptionValue builtIn="false" value="USE_LIB_CAN_BUS_SNIFFER"/>
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
+									<listOptionValue builtIn="false" value="LIMIT_PIDS"/>
 									<listOptionValue builtIn="false" value="USE_LIB_OBDII"/>
 									<listOptionValue builtIn="false" value="STM32F446xx"/>
-									<listOptionValue builtIn="false" value="LIMIT_PIDS"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths.504747365" name="Include paths (-I)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.includepaths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/lib/lib_unit_conversion/inc&quot;"/>
@@ -191,14 +191,14 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_can_bus_sniffer/src"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_digital_dash/src"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_unit_conversion/src"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_ke_protocol/src"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_obdii/src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_digital_dash/src"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_pid/src"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="lib/lib_unit_conversion/src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
