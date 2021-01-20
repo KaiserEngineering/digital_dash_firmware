@@ -1,0 +1,14 @@
+lib_ke_protocol.c:23:10:get_KE_rx_count	16	static
+lib_ke_protocol.c:28:10:get_KE_rx_abort_count	16	static
+lib_ke_protocol.c:33:10:get_KE_tx_abort_count	16	static
+lib_ke_protocol.c:38:11:KE_Initialize	16	static
+lib_ke_protocol.c:49:11:KE_Service	16	static
+lib_ke_protocol.c:108:18:KE_Process_Packet	48	static
+lib_ke_protocol.c:203:11:KE_Add_UART_Byte	16	static
+lib_ke_protocol.c:293:13:Generate_TX_Message	64	static
+lib_ke_protocol.c:422:6:KE_tick	4	static
+lib_ke_protocol.c:427:13:reset_idle_time	16	static
+lib_ke_protocol.c:432:13:clear_diagnostics	16	static
+lib_ke_protocol.c:440:13:flush_tx_buffer	16	static
+lib_ke_protocol.c:449:13:flush_rx_buffer	16	static
+lib_ke_protocol.c:458:13:clear_pid_entries	24	static
