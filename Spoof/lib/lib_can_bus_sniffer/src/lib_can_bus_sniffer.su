@@ -1,6 +1,0 @@
-lib_can_bus_sniffer.c:19:6:CAN_Sniffer_Initialize	24	static
-lib_can_bus_sniffer.c:40:13:add_filter	24	static
-lib_can_bus_sniffer.c:70:22:CAN_Sniffer_PID_Supported	16	static
-lib_can_bus_sniffer.c:108:22:CAN_Sniffer_Add_PID	16	static
-lib_can_bus_sniffer.c:170:6:CAN_Sniffer_Add_Packet	32	static
-lib_can_bus_sniffer.c:233:6:CAN_Sniffer_tick	4	static

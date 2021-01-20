@@ -1,7 +1,0 @@
-lib_unit_conversion.c:10:11:convert_units	16	static
-lib_unit_conversion.c:47:7:fahrenheit_to_celcuis	16	static
-lib_unit_conversion.c:52:7:celcuis_to_fahrenheit	16	static
-lib_unit_conversion.c:57:7:kmh_to_mph	16	static
-lib_unit_conversion.c:62:7:mph_to_kmh	16	static
-lib_unit_conversion.c:67:7:kpa_to_psi	16	static
-lib_unit_conversion.c:72:7:psi_to_kpa	16	static
