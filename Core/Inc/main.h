@@ -80,12 +80,12 @@ void Error_Handler(void);
 #define CAN_STBY_GPIO_Port GPIOB
 #define USB_EN_Pin GPIO_PIN_1
 #define USB_EN_GPIO_Port GPIOB
-#define FAN_PWM_Pin GPIO_PIN_10
-#define FAN_PWM_GPIO_Port GPIOB
 #define LCD_DR_EN_Pin GPIO_PIN_14
 #define LCD_DR_EN_GPIO_Port GPIOB
 #define LCD_DR_ENR_Pin GPIO_PIN_15
 #define LCD_DR_ENR_GPIO_Port GPIOB
+#define FAN_PWM_Pin GPIO_PIN_7
+#define FAN_PWM_GPIO_Port GPIOC
 #define GPIO34_RPI_FAN_EN_Pin GPIO_PIN_15
 #define GPIO34_RPI_FAN_EN_GPIO_Port GPIOA
 #define CARD_DETECT_SW_Pin GPIO_PIN_11

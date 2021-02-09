@@ -45,7 +45,7 @@
  * Begin Debug Flags ( 0 = Disable, 1 = Enable )
  ******************************************************************************/
 
-#define LCD_ALWAYS_ON       1 /* Force the LCD on as long as the Pi can boot */
+#define LCD_ALWAYS_ON       0 /* Force the LCD on as long as the Pi can boot */
 #define CAN_IT              1 /* Enable/disable CAN bus interrupts */
 
 /*******************************************************************************
@@ -77,7 +77,7 @@
 #define PI_UART &huart1 /* Raspberry Pi communication channel */
 #define ECU_CAN &hcan1  /* Primary CAN bus communication (OEM connector) */
 
-#define FAN_PWM 0       /* PCB-DDMB-STRS REV A does not have PWM functionality */
+#define FAN_PWM 1       /* PCB-DDMB-STRS REV A does not have PWM functionality */
 
 #define POWER_HOLD_TIM     htim8
 #define PTR_POWER_HOLD_TIM &POWER_HOLD_TIM
@@ -346,25 +346,25 @@ static void Fan_Control( FAN_PWR_STATE state )
         case FAN_MAX:
             /* Enable power to the Fan */
             HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
-            htim2.Instance->CCR3 = htim2.Instance->ARR;
-            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+            htim3.Instance->CCR2 = htim3.Instance->ARR + 1;
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
             break;
         case FAN_MED:
             /* Enable power to the Fan */
             HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
-            htim2.Instance->CCR3 = (htim2.Instance->ARR) / 4;
-            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+            htim3.Instance->CCR2 = (htim3.Instance->ARR) - 1500;
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
             break;
         case FAN_MIN:
             /* Enable power to the Fan */
             HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_SET );
-            htim2.Instance->CCR3 = (htim2.Instance->ARR) / 7;
-            HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+            htim3.Instance->CCR2 = (htim3.Instance->ARR) - 3000;
+            HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
             break;
         case FAN_OFF:
             /* Disable power to the Fan */
             HAL_GPIO_WritePin( FAN_EN_GPIO_Port, FAN_EN_Pin, GPIO_PIN_RESET );
-            HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+            HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
             break;
         }
         #else
@@ -571,6 +571,10 @@ int main(void)
 
   /* Configure the UART intetupt */
   HAL_UART_Receive_IT( PI_UART, &rx_byte, 1 );
+
+  Fan_Control( FAN_MAX );
+  Fan_Control( FAN_MED );
+  Fan_Control( FAN_MIN );
 
   /* USER CODE END 2 */
 
