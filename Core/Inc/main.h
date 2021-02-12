@@ -64,10 +64,6 @@ void Error_Handler(void);
 #define PWR_HOLD_GPIO_Port GPIOC
 #define DEBUG_LED_3_Pin GPIO_PIN_2
 #define DEBUG_LED_3_GPIO_Port GPIOC
-#define PI_GPIO32_Pin GPIO_PIN_2
-#define PI_GPIO32_GPIO_Port GPIOA
-#define PI_GPIO33_Pin GPIO_PIN_3
-#define PI_GPIO33_GPIO_Port GPIOA
 #define DEBUG_LED_1_Pin GPIO_PIN_4
 #define DEBUG_LED_1_GPIO_Port GPIOA
 #define DEBUG_LED_2_Pin GPIO_PIN_5
