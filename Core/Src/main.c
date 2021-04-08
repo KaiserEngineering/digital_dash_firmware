@@ -552,6 +552,7 @@ int main(void)
   }
 #else
       Add_CAN_Filter( 0x7E8 );
+      Add_CAN_Filter( 0x7E0 );
 #endif
 
   if( HAL_CAN_Start( &hcan1 ) != HAL_OK )
