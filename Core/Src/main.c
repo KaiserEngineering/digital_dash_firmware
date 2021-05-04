@@ -143,6 +143,12 @@ typedef enum _sys_pwr_hold {
 	SYS_PWR_HOLD_ENABLE
 } SYS_PWR_HOLD, *PSYS_PWR_HOLD;
 
+static void Motherboard_Sleep( void )
+{
+    HAL_SuspendTick();
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+}
+
 static void System_Power_Hold( SYS_PWR_HOLD state )
 {
 	if( state == SYS_PWR_HOLD_ENABLE )
@@ -233,6 +239,7 @@ HAL_StatusTypeDef can_filter( CAN_HandleTypeDef *pcan, uint32_t id, uint32_t mas
 
 void process_can_packet( CAN_HandleTypeDef *hcan, uint32_t fifo )
 {
+    HAL_ResumeTick();
     flash_led( DEBUG_LED_1 );
     CAN_RxHeaderTypeDef rx_header;
     uint8_t rx_buf[8];
@@ -483,9 +490,11 @@ void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 {
 	if( htim == PTR_POWER_HOLD_TIM )
 	{
+	    HAL_TIM_Base_Stop_IT( PTR_POWER_HOLD_TIM );
 		System_Power_Hold( SYS_PWR_HOLD_DISABLE );
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
         BITCLEAR(system_flags, PI_PWR_EN);
+        Motherboard_Sleep();
 	}
 }
 
