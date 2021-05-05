@@ -141,6 +141,9 @@ typedef enum _sys_pwr_hold {
 
 static void Motherboard_Sleep( void )
 {
+    HAL_GPIO_WritePin( DEBUG_LED_1_GPIO_Port, DEBUG_LED_1_Pin, GPIO_PIN_RESET );
+    HAL_GPIO_WritePin( DEBUG_LED_2_GPIO_Port, DEBUG_LED_2_Pin, GPIO_PIN_RESET );
+    HAL_GPIO_WritePin( DEBUG_LED_3_GPIO_Port, DEBUG_LED_3_Pin, GPIO_PIN_RESET );
     HAL_SuspendTick();
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 }
@@ -161,6 +164,8 @@ typedef enum _debug_led {
 
 static void flash_led( DEBUG_LED led )
 {
+    if( BITCHECK(system_flags, PI_PWR_EN) == 0 )
+        return;
     if( led == DEBUG_LED_1 )
     {
         LED1_Tick = 50;
