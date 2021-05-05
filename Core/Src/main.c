@@ -310,28 +310,6 @@ static void USB_Power( USB_PWR_STATE state )
         HAL_GPIO_WritePin( USB_EN_GPIO_Port, USB_EN_Pin, GPIO_PIN_RESET );
 }
 
-static void Pi_Power( HOST_PWR_STATE state )
-{
-    if( state == HOST_PWR_ENABLED )
-    {
-    	HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_RESET );
-        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
-        BITSET(system_flags, PI_PWR_EN);
-    } else
-    {
-    	if( !(POWER_HOLD_TIM.Instance->CR1 & TIM_CR1_CEN) )
-    	{
-    		LCD_Brightness( 0 );
-        	HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_SET );
-        	System_Power_Hold( SYS_PWR_HOLD_ENABLE );
-			__HAL_TIM_CLEAR_FLAG( PTR_POWER_HOLD_TIM, TIM_IT_UPDATE );
-			htim8.Instance->CNT = 0;
-			HAL_TIM_Base_Start_IT( PTR_POWER_HOLD_TIM );
-    	}
-    }
-
-}
-
 static void Get_SD_Card_State( void )
 {
     if( HAL_GPIO_ReadPin( CARD_DETECT_SW_GPIO_Port, CARD_DETECT_SW_Pin ) == GPIO_PIN_RESET )
@@ -388,6 +366,25 @@ static void Fan_Control( FAN_PWR_STATE state )
         }
 
         #endif
+}
+
+static void Pi_Power( HOST_PWR_STATE state )
+{
+    if( state == HOST_PWR_ENABLED )
+    {
+        HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_RESET );
+        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
+        BITSET(system_flags, PI_PWR_EN);
+    } else
+    {
+        Fan_Control( FAN_OFF );
+        LCD_Brightness( 0 );
+        HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_SET );
+        System_Power_Hold( SYS_PWR_HOLD_DISABLE );
+        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
+        BITCLEAR(system_flags, PI_PWR_EN);
+    }
+
 }
 
 static uint8_t Rasp_Pi_Tx( uint8_t *data, uint8_t len )
@@ -494,7 +491,7 @@ void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 		System_Power_Hold( SYS_PWR_HOLD_DISABLE );
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
         BITCLEAR(system_flags, PI_PWR_EN);
-        Motherboard_Sleep();
+        //Motherboard_Sleep();
 	}
 }
 
