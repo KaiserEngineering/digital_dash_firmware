@@ -65,7 +65,6 @@
 #define FORD_FOCUS_BACKLIGHT_TIM                &htim13
 #define FORD_FOCUS_BACKLIGHT_TIM_CHANNEL        TIM_CHANNEL_1
 #define FORD_FOCUS_BACKLIGHT_TIM_ACTIVE_CHANNEL HAL_TIM_ACTIVE_CHANNEL_1
-#define FORD_FOCUS_BACKLIGHT_TIMEOUT_TIM        &htim11
 
 /* Digital Dash LCD timer */
 #define BKLT_TIM     htim14
@@ -532,7 +531,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM8_Init();
   MX_TIM13_Init();
-  MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start( &htim2, TIM_CHANNEL_3 );
