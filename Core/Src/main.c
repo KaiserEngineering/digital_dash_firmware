@@ -78,9 +78,6 @@
 
 #define FAN_PWM 1       /* PCB-DDMB-STRS REV A does not have PWM functionality */
 
-#define POWER_HOLD_TIM     htim8
-#define PTR_POWER_HOLD_TIM &POWER_HOLD_TIM
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -484,14 +481,6 @@ int32_t get_mcu_internal_temp( void )
 
 void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 {
-	if( htim == PTR_POWER_HOLD_TIM )
-	{
-	    HAL_TIM_Base_Stop_IT( PTR_POWER_HOLD_TIM );
-		System_Power_Hold( SYS_PWR_HOLD_DISABLE );
-        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
-        BITCLEAR(system_flags, PI_PWR_EN);
-        //Motherboard_Sleep();
-	}
 }
 
 /* USER CODE END 0 */
@@ -529,7 +518,6 @@ int main(void)
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_TIM2_Init();
-  MX_TIM8_Init();
   MX_TIM13_Init();
   /* USER CODE BEGIN 2 */
 
