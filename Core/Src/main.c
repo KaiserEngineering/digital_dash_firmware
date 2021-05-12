@@ -124,7 +124,7 @@ static volatile uint32_t system_flags = 0;
     #define FAN_PWR_FAULT       8
     #define CAN1_EN             9
 
-#define MCU_THERMAL_THRESH 50
+#define MCU_THERMAL_THRESH 77
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
