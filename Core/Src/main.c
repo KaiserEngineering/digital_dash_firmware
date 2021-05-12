@@ -79,9 +79,6 @@
 
 #define FAN_PWM 1       /* PCB-DDMB-STRS REV A does not have PWM functionality */
 
-#define POWER_HOLD_TIM     htim8
-#define PTR_POWER_HOLD_TIM &POWER_HOLD_TIM
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -307,20 +304,12 @@ static void Pi_Power( HOST_PWR_STATE state )
 {
     if( state == HOST_PWR_ENABLED )
     {
-    	HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_RESET );
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
         BITSET(system_flags, PI_PWR_EN);
     } else
     {
-    	if( !(POWER_HOLD_TIM.Instance->CR1 & TIM_CR1_CEN) )
-    	{
-    		LCD_Brightness( 0 );
-        	HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_SET );
-        	System_Power_Hold( SYS_PWR_HOLD_ENABLE );
-			__HAL_TIM_CLEAR_FLAG( PTR_POWER_HOLD_TIM, TIM_IT_UPDATE );
-			htim8.Instance->CNT = 0;
-			HAL_TIM_Base_Start_IT( PTR_POWER_HOLD_TIM );
-    	}
+        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
+        BITCLEAR(system_flags, PI_PWR_EN);
     }
 
 }
@@ -481,12 +470,6 @@ int32_t get_mcu_internal_temp( void )
 
 void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 {
-	if( htim == PTR_POWER_HOLD_TIM )
-	{
-		System_Power_Hold( SYS_PWR_HOLD_DISABLE );
-        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
-        BITCLEAR(system_flags, PI_PWR_EN);
-	}
 }
 
 /* USER CODE END 0 */
