@@ -65,7 +65,6 @@
 #define FORD_FOCUS_BACKLIGHT_TIM                &htim13
 #define FORD_FOCUS_BACKLIGHT_TIM_CHANNEL        TIM_CHANNEL_1
 #define FORD_FOCUS_BACKLIGHT_TIM_ACTIVE_CHANNEL HAL_TIM_ACTIVE_CHANNEL_1
-#define FORD_FOCUS_BACKLIGHT_TIMEOUT_TIM        &htim11
 
 /* Digital Dash LCD timer */
 #define BKLT_TIM     htim14
@@ -140,6 +139,15 @@ typedef enum _sys_pwr_hold {
 	SYS_PWR_HOLD_ENABLE
 } SYS_PWR_HOLD, *PSYS_PWR_HOLD;
 
+static void Motherboard_Sleep( void )
+{
+    HAL_GPIO_WritePin( DEBUG_LED_1_GPIO_Port, DEBUG_LED_1_Pin, GPIO_PIN_RESET );
+    HAL_GPIO_WritePin( DEBUG_LED_2_GPIO_Port, DEBUG_LED_2_Pin, GPIO_PIN_RESET );
+    HAL_GPIO_WritePin( DEBUG_LED_3_GPIO_Port, DEBUG_LED_3_Pin, GPIO_PIN_RESET );
+    HAL_SuspendTick();
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+}
+
 static void System_Power_Hold( SYS_PWR_HOLD state )
 {
 	if( state == SYS_PWR_HOLD_ENABLE )
@@ -156,6 +164,8 @@ typedef enum _debug_led {
 
 static void flash_led( DEBUG_LED led )
 {
+    if( BITCHECK(system_flags, PI_PWR_EN) == 0 )
+        return;
     if( led == DEBUG_LED_1 )
     {
         LED1_Tick = 50;
@@ -230,6 +240,7 @@ HAL_StatusTypeDef can_filter( CAN_HandleTypeDef *pcan, uint32_t id, uint32_t mas
 
 void process_can_packet( CAN_HandleTypeDef *hcan, uint32_t fifo )
 {
+    HAL_ResumeTick();
     flash_led( DEBUG_LED_1 );
     CAN_RxHeaderTypeDef rx_header;
     uint8_t rx_buf[8];
@@ -300,20 +311,6 @@ static void USB_Power( USB_PWR_STATE state )
         HAL_GPIO_WritePin( USB_EN_GPIO_Port, USB_EN_Pin, GPIO_PIN_RESET );
 }
 
-static void Pi_Power( HOST_PWR_STATE state )
-{
-    if( state == HOST_PWR_ENABLED )
-    {
-        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
-        BITSET(system_flags, PI_PWR_EN);
-    } else
-    {
-        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
-        BITCLEAR(system_flags, PI_PWR_EN);
-    }
-
-}
-
 static void Get_SD_Card_State( void )
 {
     if( HAL_GPIO_ReadPin( CARD_DETECT_SW_GPIO_Port, CARD_DETECT_SW_Pin ) == GPIO_PIN_RESET )
@@ -370,6 +367,26 @@ static void Fan_Control( FAN_PWR_STATE state )
         }
 
         #endif
+}
+
+static void Pi_Power( HOST_PWR_STATE state )
+{
+    if( state == HOST_PWR_ENABLED )
+    {
+        HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_RESET );
+        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
+        BITSET(system_flags, PI_PWR_EN);
+    } else
+    {
+        Fan_Control( FAN_OFF );
+        LCD_Brightness( 0 );
+        HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_SET );
+        System_Power_Hold( SYS_PWR_HOLD_DISABLE );
+        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
+        BITCLEAR(system_flags, PI_PWR_EN);
+        Motherboard_Sleep();
+    }
+
 }
 
 static uint8_t Rasp_Pi_Tx( uint8_t *data, uint8_t len )
@@ -507,9 +524,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_TIM2_Init();
-  MX_TIM8_Init();
   MX_TIM13_Init();
-  MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start( &htim2, TIM_CHANNEL_3 );
