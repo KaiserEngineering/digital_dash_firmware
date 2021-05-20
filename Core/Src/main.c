@@ -384,7 +384,8 @@ static void Pi_Power( HOST_PWR_STATE state )
         System_Power_Hold( SYS_PWR_HOLD_DISABLE );
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
         BITCLEAR(system_flags, PI_PWR_EN);
-        Motherboard_Sleep();
+        if( state == HOST_PWR_SLEEP )
+            Motherboard_Sleep();
     }
 
 }
