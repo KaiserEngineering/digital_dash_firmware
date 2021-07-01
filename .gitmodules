@@ -16,3 +16,6 @@
 [submodule "lib/lib_can_bus_sniffer"]
 	path = lib/lib_can_bus_sniffer
 	url = https://github.com/KaiserEngineering/lib_can_bus_sniffer.git
+[submodule "lib/lib_vehicle_data"]
+	path = lib/lib_vehicle_data
+	url = https://github.com/KaiserEngineering/lib_vehicle_data.git
