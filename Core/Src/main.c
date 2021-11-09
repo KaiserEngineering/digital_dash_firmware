@@ -78,6 +78,9 @@
 
 #define FAN_PWM 1       /* PCB-DDMB-STRS REV A does not have PWM functionality */
 
+#define POWER_HOLD_TIM     htim8
+#define PTR_POWER_HOLD_TIM &POWER_HOLD_TIM
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -115,13 +118,14 @@ static volatile uint32_t system_flags = 0;
     #define SD_CARD_PRESENT     0
     #define PI_PWR_EN           1
     #define PI_PWR_FAULT        2
-    #define LCD_PWR_EN          3
-    #define LCD_BACKLIGHT_EN    4
-    #define USB_PWR_EN          5
-    #define USB_PWR_FAULT       6
-    #define FAN_PWR_EN          7
-    #define FAN_PWR_FAULT       8
-    #define CAN1_EN             9
+    #define PI_SHUTTING_DOWN    3
+    #define LCD_PWR_EN          4
+    #define LCD_BACKLIGHT_EN    5
+    #define USB_PWR_EN          6
+    #define USB_PWR_FAULT       7
+    #define FAN_PWR_EN          8
+    #define FAN_PWR_FAULT       9
+    #define CAN1_EN             10
 
 #define MCU_THERMAL_THRESH 77
 /* USER CODE END PV */
@@ -373,19 +377,19 @@ static void Pi_Power( HOST_PWR_STATE state )
 {
     if( state == HOST_PWR_ENABLED )
     {
-        HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_RESET );
+        HAL_GPIO_WritePin( GPIO34_PI_SHUTDOWN_GPIO_Port, GPIO34_PI_SHUTDOWN_Pin, GPIO_PIN_SET );
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
         BITSET(system_flags, PI_PWR_EN);
     } else
     {
         Fan_Control( FAN_OFF );
         LCD_Brightness( 0 );
-        HAL_GPIO_WritePin( PI_SHUTDOWN_GPIO_Port, PI_SHUTDOWN_Pin, GPIO_PIN_SET );
-        System_Power_Hold( SYS_PWR_HOLD_DISABLE );
-        HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
-        BITCLEAR(system_flags, PI_PWR_EN);
-        if( state == HOST_PWR_SLEEP )
-            Motherboard_Sleep();
+        HAL_GPIO_WritePin( GPIO34_PI_SHUTDOWN_GPIO_Port, GPIO34_PI_SHUTDOWN_Pin, GPIO_PIN_RESET );
+        System_Power_Hold( SYS_PWR_HOLD_ENABLE );
+        POWER_HOLD_TIM.Instance->CNT = 0;
+        __HAL_TIM_CLEAR_FLAG( PTR_POWER_HOLD_TIM, TIM_IT_UPDATE );
+        HAL_TIM_Base_Start_IT( PTR_POWER_HOLD_TIM );
+        BITSET(system_flags, PI_SHUTTING_DOWN);
     }
 
 }
@@ -486,8 +490,55 @@ int32_t get_mcu_internal_temp( void )
 		return temperature;
 }
 
+static void DigitalDash_Off( void )
+{
+    /* Stop the timer, Pi shutdown already */
+    HAL_TIM_Base_Stop_IT( PTR_POWER_HOLD_TIM );
+
+    /* The Pi has indicated a complete shutdown */
+    BITCLEAR( system_flags, PI_SHUTTING_DOWN );
+
+    /* Allow the vehicle to shutdown the Digital Dash */
+    System_Power_Hold( SYS_PWR_HOLD_DISABLE );
+
+    /* Cut all power to the Raspberry Pi */
+    HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_RESET );
+    BITCLEAR( system_flags, PI_PWR_EN );
+
+    /*
+     * Put the Digital Dash motherboard in sleep mode,
+     * this only effects vehicles that cannot use hardware
+     * to shutdown the Digital Dash such as early model
+     * Focus ST's.
+     */
+    Motherboard_Sleep();
+}
+
 void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef *htim )
 {
+    if( htim == PTR_POWER_HOLD_TIM )
+    {
+        /*
+         * The Pi never drove a signal HIGH on successful shutdown.
+         * Shut off to the Pi anyways to reduce power draw and set
+         * the Digital Dash into low power state.
+         */
+        DigitalDash_Off();
+    }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    /*
+     * The Pi is expected to drive a signal HIGH when
+     * it has successfully shutdown, at which point the
+     * power can be shut off and the Digital Dash can go
+     * into low power state.
+     */
+    if( GPIO_Pin == GPIO35_PI_STATUS_Pin )
+    {
+        DigitalDash_Off();
+    }
 }
 
 /* USER CODE END 0 */
@@ -526,6 +577,7 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM2_Init();
   MX_TIM13_Init();
+  MX_TIM8_Init();
   /* USER CODE BEGIN 2 */
 
   HAL_TIM_PWM_Start( &htim2, TIM_CHANNEL_3 );
