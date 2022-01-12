@@ -537,7 +537,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
      */
     if( GPIO_Pin == GPIO35_PI_STATUS_Pin )
     {
-        DigitalDash_Off();
+        /*
+         * This code is not being used yet, instead a timer is used to delay the
+         * shutdown. This code should be enabled when the Raspberry Pi can
+         * reliably drive the GPIO pin HIGH when it has shutdown.
+         */
+        //HAL_GPIO_WritePin( DEBUG_LED_2_GPIO_Port, DEBUG_LED_2_Pin, GPIO_PIN_SET);
+        //HAL_Delay(100);
+        //DigitalDash_Off();
     }
 }
 
