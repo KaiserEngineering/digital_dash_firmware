@@ -148,8 +148,8 @@ static void Motherboard_Sleep( void )
     HAL_GPIO_WritePin( DEBUG_LED_1_GPIO_Port, DEBUG_LED_1_Pin, GPIO_PIN_RESET );
     HAL_GPIO_WritePin( DEBUG_LED_2_GPIO_Port, DEBUG_LED_2_Pin, GPIO_PIN_RESET );
     HAL_GPIO_WritePin( DEBUG_LED_3_GPIO_Port, DEBUG_LED_3_Pin, GPIO_PIN_RESET );
-    HAL_SuspendTick();
-    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    //HAL_SuspendTick();
+    //HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 }
 
 static void System_Power_Hold( SYS_PWR_HOLD state )
@@ -380,7 +380,7 @@ static void Pi_Power( HOST_PWR_STATE state )
         HAL_GPIO_WritePin( GPIO34_PI_SHUTDOWN_GPIO_Port, GPIO34_PI_SHUTDOWN_Pin, GPIO_PIN_SET );
         HAL_GPIO_WritePin( PI_PWR_EN_GPIO_Port, PI_PWR_EN_Pin, GPIO_PIN_SET );
         BITSET(system_flags, PI_PWR_EN);
-    } else
+    } else if ( state == HOST_PWR_SLEEP )
     {
         Fan_Control( FAN_OFF );
         LCD_Brightness( 0 );
@@ -390,6 +390,12 @@ static void Pi_Power( HOST_PWR_STATE state )
         __HAL_TIM_CLEAR_FLAG( PTR_POWER_HOLD_TIM, TIM_IT_UPDATE );
         HAL_TIM_Base_Start_IT( PTR_POWER_HOLD_TIM );
         BITSET(system_flags, PI_SHUTTING_DOWN);
+    } else
+    {
+        Fan_Control( FAN_OFF );
+        LCD_Brightness( 0 );
+        System_Power_Hold( SYS_PWR_HOLD_DISABLE );
+        BITCLEAR(system_flags, PI_PWR_EN);
     }
 
 }
