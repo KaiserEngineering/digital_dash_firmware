@@ -631,9 +631,6 @@ int main(void)
   /* Configure the UART intetupt */
   HAL_UART_Receive_IT( PI_UART, &rx_byte, 1 );
 
-  /* Start fan at medium speed */
-  Fan_Control( FAN_MED );
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
